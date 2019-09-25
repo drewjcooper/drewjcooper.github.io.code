@@ -1,12 +1,13 @@
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace SystemRandomIsNotThreadSafe
 {
     class InternalState
     {
-        private static readonly FieldInfo inextField = GetField("inext");
-        private static readonly FieldInfo inextpField = GetField("inextp");
+        private static readonly FieldInfo inextField;
+        private static readonly FieldInfo inextpField;
 
         // The size of the internal SeedArray less one, because the internal
         // indicies are never 0.
@@ -19,8 +20,8 @@ namespace SystemRandomIsNotThreadSafe
         static InternalState()
         {
             // The fields have '_' in .Net Core, but not .Net Framework
-            inextField = GetField("_inext");
-            inextpField = GetField("_inextp");
+            inextField = GetField("inext");
+            inextpField = GetField("inextp");
         }
 
         private InternalState(int sampleCount, int inext, int inextp)
@@ -38,10 +39,12 @@ namespace SystemRandomIsNotThreadSafe
             // The fields have '_' in .Net Core, but not .Net Framework
             var netCoreName = $"_{name}";
             
+            var fields = type.GetFields(privateInstance);
+
             return type.GetField(netCoreName, privateInstance) ??
                 type.GetField(name, privateInstance) ??
                 throw new FieldAccessException(
-                    $"Unable to find field '{netCoreName}' or '{name}' in {type.FullName}");
+                    $"Unable to find field '{netCoreName}' or '{name}' in {type.FullName}. FieldsFound: {String.Join(",", fields.Select(f => f.Name))}");
         }
 
         public static InternalState Get(Random rnd, ref int sampleCount)
@@ -54,9 +57,13 @@ namespace SystemRandomIsNotThreadSafe
 
         public int IndexOffset => (modulus + inextp - inext) % modulus;
 
+        public static string Header =>
+            "Sample Count | Index Offset | inext | inextp" + Environment.NewLine +
+            "-------------|--------------|-------|-------";
+
         public override string ToString()
         {
-            return $"After {sampleCount,11:###,###,###} samples, index offset is {IndexOffset,2:#0} ({inext,2}, {inextp,2})";
+            return $"{sampleCount,12:###,###,###} | {IndexOffset,12:#0} | {inext,5} | {inextp,6}";
         }
     }
 }

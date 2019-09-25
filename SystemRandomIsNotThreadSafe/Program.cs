@@ -21,6 +21,7 @@ namespace SystemRandomIsNotThreadSafe
 
             threads.ForEach(t => t.Join());
 
+            Console.WriteLine(InternalState.Header);
             Console.WriteLine(String.Join(Environment.NewLine, rnd.InternalStates));
         }
 
