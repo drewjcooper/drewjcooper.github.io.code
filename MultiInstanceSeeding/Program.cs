@@ -25,12 +25,14 @@ namespace MultiInstanceSeeding
             threads.ForEach(t => t.Start());
             threads.ForEach(t => t.Join());
             
-            foreach (var kvp in results.OrderBy(x => x.Value.First()))
+            Console.WriteLine("PRNG Id | Sequence");
+            Console.WriteLine($"--------+{new String('-', 79)}");
+            foreach (var kvp in results.OrderBy(x => x.Value.First()).ThenBy(x => x.Key))
             {
                 var rndId = kvp.Key;
                 var sequence = kvp.Value;
 
-                Console.WriteLine($"{rndId,5}: {String.Join(", ", sequence.Select(x => $"{x,2}"))}");
+                Console.WriteLine($"{rndId,7} | {String.Join(", ", sequence.Select(x => $"{x,2}"))}");
             }
         }
 
