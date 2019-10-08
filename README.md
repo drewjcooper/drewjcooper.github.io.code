@@ -12,4 +12,4 @@ A console app demonstrating a potential timing issue with creating multiple inst
 A console app demonstrating the corruption of `System.Random`'s internal state when used across
 multiple threads.
 
-[blog-root]: https://drewjcooper@github.io
+[blog-root]: https://drewjcooper.github.io
